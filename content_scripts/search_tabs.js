@@ -1,3 +1,5 @@
+/* global browser */
+
 // NOTE: md2 hash for ids to ensure they are unique across DOM
 const switchTabId = "FB97F8C18028D30F4D1F9BB40141C69C";
 const inputId = "FB97F8C18028D30F4D1F9BB40141C69B";

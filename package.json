@@ -1,0 +1,24 @@
+{
+  "name": "search-tabs",
+  "version": "1.0.0",
+  "description": "utility to help improve searching tabs in firefox",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Pesec1/search-tabs.git"
+  },
+  "author": "Pesec",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Pesec1/search-tabs/issues"
+  },
+  "homepage": "https://github.com/Pesec1/search-tabs#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "globals": "^15.14.0"
+  }
+}

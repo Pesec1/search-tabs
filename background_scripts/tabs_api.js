@@ -1,4 +1,5 @@
-browser.runtime.onMessage.addListener((data, sender) => {
+/* global browser */
+browser.runtime.onMessage.addListener((data) => {
 	console.log(data);
 	if (data.msg === "search_activated") {
 		return Promise.resolve(getTabsInfo());
