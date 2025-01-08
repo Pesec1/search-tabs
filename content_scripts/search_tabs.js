@@ -16,19 +16,6 @@ let isInputFocused = true;
 let lastKey;
 
 
-addEventListener("keydown", async (event) => {
-	if (event.code === "KeyP" && event.altKey && !isSearching) {
-		startSearch();
-	} else if (event.code == "Escape" && lastKey === 'Escape' && isSearching) {
-		quitSearch();
-	} else if (document.getElementById(inputId) && isSearching && isInputFocused) {
-		document.getElementById(inputId).focus();
-	} else if (!isInputFocused) {
-		selectTab(event);
-	}
-	lastKey = event.code;
-});
-
 async function startSearch() {
 	isSearching = true;
 	const tabsInfo = await browser.runtime.sendMessage({ "msg": "search_activated" });
@@ -132,3 +119,16 @@ function selectTab(event) {
 			break;
 	}
 };
+
+addEventListener("keydown", async (event) => {
+	if (event.code === "KeyP" && event.altKey && !isSearching) {
+		startSearch();
+	} else if (event.code == "Escape" && lastKey === 'Escape' && isSearching) {
+		quitSearch();
+	} else if (document.getElementById(inputId) && isSearching && isInputFocused) {
+		document.getElementById(inputId).focus();
+	} else if (!isInputFocused) {
+		selectTab(event);
+	}
+	lastKey = event.code;
+});
