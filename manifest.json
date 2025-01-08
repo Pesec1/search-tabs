@@ -1,0 +1,27 @@
+{
+	"manifest_version": 2,
+	"name": "Search-tabs",
+	"version": "0.0.1",
+	"description": "Search-tabs",
+	"icons": {
+		"48": "icons/border-48.png"
+	},
+	"permissions": [
+		"tabs"
+	],
+	"content_scripts": [
+		{
+			"matches": [
+				"<all_urls>"
+			],
+			"js": [
+				"content_script/search-tabs.js"
+			]
+		}
+	],
+	"background": {
+		"scripts": [
+			"background_script/search-tabs.js"
+		]
+	}
+}
