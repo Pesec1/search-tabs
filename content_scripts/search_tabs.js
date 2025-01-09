@@ -1,7 +1,7 @@
 /* global browser */
 
 // NOTE: md2 hash for ids to ensure they are unique across DOM
-const switchTabId = "FB97F8C18028D30F4D1F9BB40141C69C";
+const searchBarId = "FB97F8C18028D30F4D1F9BB40141C69C";
 const inputId = "FB97F8C18028D30F4D1F9BB40141C69B";
 const listId = "FB97F8C18028D30F4D1F9BB40141C69D";
 
@@ -11,6 +11,7 @@ const listId = "FB97F8C18028D30F4D1F9BB40141C69D";
 const searchBarCss = "position:absolute;width:100%;height:50%;opacity:0.4;z-index:100;";
 const highlightSelection = "background-color: #ff0;";
 
+// TODO: need a function to update those states and states of styles, it became to fucked to do it manually
 let currentTab = 0;
 let filteredTabs = [];
 let isSearching = false;
@@ -26,7 +27,7 @@ async function startSearch() {
 
 	// main div
 	const searchBar = document.createElement("div");
-	searchBar.id = switchTabId;
+	searchBar.id = searchBarId;
 	searchBar.style.cssText = searchBarCss;
 
 	// input
@@ -40,14 +41,15 @@ async function startSearch() {
 	const ol = document.createElement("ol");
 	ol.id = listId;
 	searchBar.appendChild(ol);
-	tabsInfo.forEach((tab) => {
+	tabsInfo.forEach((tab, index) => {
 		let tabLink = document.createElement("li");
 		tabLink.textContent = tab.title || tab.id;
 		// TODO: need to change from storing tab.id in "href" to storing it in "id" attr
 		// makes more sense by how it is used by program
 		tabLink.setAttribute("href", tab.id);
-		tabLink.classList.add("switch-tabs");
+		tabLink.style.cssText = index === 0 ? highlightSelection : "";
 
+		filteredTabs.push(tabLink);
 		ol.appendChild(tabLink);
 	});
 
@@ -57,8 +59,11 @@ async function startSearch() {
 
 function quitSearch() {
 	isSearching = false;
+	isInputFocused = true;
 	currentTab = 0;
-	document.getElementById(switchTabId).remove();
+	lastKey = "";
+	filteredTabs = [];
+	document.getElementById(searchBarId).remove();
 	console.log("quiting search");
 };
 
@@ -66,11 +71,10 @@ function searchTabs(event) {
 	// TODO: make more complex search, calculate Levenshtein distance, warmpup tab when distance is close
 	// Right now warming tab is in the back script when switching, but I think that is not ideal
 	// Could slow down swtich speed
-
-	if (event.code === 'Enter' && filteredTabs.length != 0) {
+	if (event.code === "Enter") {
 		browser.runtime.sendMessage({ "msg": "switch_tab", "meta": { "tabId": Number(filteredTabs[currentTab].getAttribute("href")) } });
+		quitSearch();
 		console.log("switching tab");
-		return;
 	} else if (event.code === "Escape" && isInputFocused) {
 		document.getElementById(inputId).blur();
 		isInputFocused = false;
@@ -82,17 +86,26 @@ function searchTabs(event) {
 	}
 
 
-	filteredTabs = [];
 	const input = document.getElementById(inputId).value.toUpperCase();
 	const ol = document.getElementById(listId);
 	const li = ol.getElementsByTagName("li");
 
 	// TODO: need to test how this actually works
+	// WARNING: trash code ahead, buckle up for the ride
+	let i = 0;
+	filteredTabs = [];
+	currentTab = 0;
 	for (const [key, value] of Object.entries(li)) {
 		if (value.innerHTML.toUpperCase().indexOf(input) > -1) {
+			li[key].style.cssText = "";
 			li[key].style.display = "";
 			filteredTabs.push(li[key]);
+			if (i === 0) {
+				li[key].style.cssText = highlightSelection;
+				i++;
+			}
 		} else {
+			li[key].style.cssText = "";
 			li[key].style.display = "none";
 		}
 	}
@@ -106,26 +119,34 @@ function selectTab(event) {
 		case "KeyK": // Up
 			filteredTabs[currentTab].style.cssText = "";
 			currentTab = currentTab > 0 ? --currentTab : 0;
+			console.log(currentTab);
 			filteredTabs[currentTab].style.cssText = highlightSelection;
 			console.log('going up in search');
 			break;
 		case "KeyJ": // Down
 			filteredTabs[currentTab].style.cssText = "";
 			currentTab = currentTab < filteredTabs.length - 1 ? ++currentTab : filteredTabs.length - 1;
+			console.log(currentTab);
 			filteredTabs[currentTab].style.cssText = highlightSelection;
 			console.log('going down in search');
 			break;
-		case "Escape":
-			console.log('bluring going down');
+		case "KeyI":
 			isInputFocused = true;
+			console.log('bluring going down');
+			break;
+		case "Enter":
+			browser.runtime.sendMessage({ "msg": "switch_tab", "meta": { "tabId": Number(filteredTabs[currentTab].getAttribute("href")) } });
+			quitSearch();
+			console.log("switching tab");
 			break;
 	}
 };
 
 addEventListener("keydown", async (event) => {
+	console.log(currentTab);
 	if (event.code === "KeyP" && event.altKey && !isSearching) {
 		startSearch();
-	} else if (event.code == "Escape" && lastKey === 'Escape' && isSearching) {
+	} else if (event.code == "Escape" && lastKey === "Escape" && isSearching) {
 		quitSearch();
 	} else if (document.getElementById(inputId) && isSearching && isInputFocused) {
 		document.getElementById(inputId).focus();

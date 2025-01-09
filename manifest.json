@@ -15,13 +15,13 @@
 				"<all_urls>"
 			],
 			"js": [
-				"content_script/search_tabs.js"
+				"content_scripts/search_tabs.js"
 			]
 		}
 	],
 	"background": {
 		"scripts": [
-			"background_script/tabs_api.js"
+			"background_scripts/tabs_api.js"
 		]
 	}
 }
